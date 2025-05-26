@@ -50,5 +50,6 @@ def generate_with_HF_model(
         s = generation_output.sequences[0]
         output = tokenizer.decode(s)
     except Exception as e:
-        breakpoint()
+        print(f"⚠️ HuggingFace generation failed: {e}")
+        return "[HF Error]"
     return output
