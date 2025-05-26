@@ -13,6 +13,7 @@ import numpy as np
 
 def load_HF_model(ckpt) -> tuple:
     tokenizer = AutoTokenizer.from_pretrained(ckpt)
+    tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(
         ckpt,
         load_in_8bit=False,
