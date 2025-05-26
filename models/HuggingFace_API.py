@@ -49,8 +49,8 @@ def generate_with_HF_model(
             generate_with_HF_model.call_counter = 0
 
         generate_with_HF_model.call_counter += 1
-        progress = min(100, int((generate_with_HF_model.call_counter / 120) * 100))
-        print(f"🧠 Progress (I hope...): {progress}% ({generate_with_HF_model.call_counter}/120)")
+        progress = min(100, int((generate_with_HF_model.call_counter / 619) * 100))
+        print(f"🧠 Progress (more or less...): {progress}% ({generate_with_HF_model.call_counter}/619)")
 
         inputs = tokenizer(input, return_tensors="pt", padding=True, truncation=True)
         inputs = {k: v.to("cuda") for k, v in inputs.items()}
