@@ -4,6 +4,7 @@ import torch
 from transformers import (
     GenerationConfig,
     AutoModelForCausalLM,
+    AutoModelForSeq2SeqLM,
     AutoTokenizer,
 )
 from tqdm import tqdm
@@ -13,14 +14,27 @@ import numpy as np
 
 def load_HF_model(ckpt) -> tuple:
     tokenizer = AutoTokenizer.from_pretrained(ckpt)
-    tokenizer.pad_token = tokenizer.eos_token
-    model = AutoModelForCausalLM.from_pretrained(
-        ckpt,
-        load_in_8bit=False,
-        torch_dtype=torch.float16,
-        device_map="auto",
-        trust_remote_code=True,
-    )
+
+    # Patch pad token if needed
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token or tokenizer.unk_token or "[PAD]"
+
+    # Try causal LM first, fallback to seq2seq
+    try:
+        model = AutoModelForCausalLM.from_pretrained(
+            ckpt,
+            torch_dtype=torch.float16,
+            device_map="auto",
+            trust_remote_code=True,
+        )
+    except:
+        model = AutoModelForSeq2SeqLM.from_pretrained(
+            ckpt,
+            torch_dtype=torch.float16,
+            device_map="auto",
+            trust_remote_code=True,
+        )
+
     return tokenizer, model
 
 
