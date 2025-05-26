@@ -28,9 +28,13 @@ def generate_with_HF_model(
     tokenizer, model, input=None, temperature=0.8, top_p=0.95, top_k=40, num_beams=1, max_new_tokens=128, **kwargs
 ):
     try:
-        self.call_counter += 1
-        progress = min(100, int((self.call_counter / 120) * 100))
-        print(f"🧠 Progress (I hope so...): {progress}% ({self.call_counter}/120)")
+        # Static variable to count calls
+        if not hasattr(generate_with_HF_model, "call_counter"):
+            generate_with_HF_model.call_counter = 0
+
+        generate_with_HF_model.call_counter += 1
+        progress = min(100, int((generate_with_HF_model.call_counter / 120) * 100))
+        print(f"🧠 Progress (I hope...): {progress}% ({generate_with_HF_model.call_counter}/120)")
 
         inputs = tokenizer(input, return_tensors="pt", padding=True, truncation=True)
         inputs = {k: v.to("cuda") for k, v in inputs.items()}
