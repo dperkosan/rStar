@@ -28,6 +28,8 @@ def generate_with_HF_model(
     tokenizer, model, input=None, temperature=0.8, top_p=0.95, top_k=40, num_beams=1, max_new_tokens=128, **kwargs
 ):
     try:
+        print(f"📦 Model is on device: {next(model.parameters()).device}")
+
         # Static variable to count calls
         if not hasattr(generate_with_HF_model, "call_counter"):
             generate_with_HF_model.call_counter = 0
