@@ -1,7 +1,6 @@
 # Licensed under the MIT license.
 
 import sys
-
 sys.path.append(".")
 
 from typing import List, Dict
@@ -16,6 +15,11 @@ try:
 except:
     pass
 
+try:
+    from models.HuggingFace_API import generate_with_HF_model
+except:
+    pass  # will raise in use if not defined
+
 
 class IO_System:
     """Input/Output system"""
@@ -26,6 +30,9 @@ class IO_System:
             assert tokenizer is None and model is None
         elif self.api == "gpt3.5-turbo":
             assert tokenizer is None and isinstance(model, str)
+        elif self.api == "huggingface":
+            assert tokenizer is not None and model is not None
+
         self.model_ckpt = args.model_ckpt
         self.temperature = args.temperature
         self.top_k = args.top_k
@@ -66,6 +73,22 @@ class IO_System:
                 io_output_list = gpt_response
                 self.call_counter += num_return
                 self.token_counter += 0
+            elif self.api == "huggingface":
+                io_output_list = [
+                    generate_with_HF_model(
+                        self.tokenizer,
+                        self.model,
+                        input=model_input,
+                        temperature=self.temperature,
+                        top_k=self.top_k,
+                        top_p=self.top_p,
+                        num_beams=1,
+                        max_new_tokens=max_tokens,
+                    )
+                    for _ in range(num_return)
+                ]
+                self.call_counter += num_return
+                # token counting not implemented for HF yet
             elif self.api == "debug":
                 io_output_list = ["Debug: The answer is generated with debug mode, 233." for _ in range(num_return)]
             else:
@@ -108,6 +131,24 @@ class IO_System:
                     io_output_list.append(gpt_response)
                     self.call_counter += num_return
                     self.token_counter += 0
+            elif self.api == "huggingface":
+                io_output_list = []
+                for input in model_input:
+                    outputs = [
+                        generate_with_HF_model(
+                            self.tokenizer,
+                            self.model,
+                            input=input,
+                            temperature=self.temperature,
+                            top_k=self.top_k,
+                            top_p=self.top_p,
+                            num_beams=1,
+                            max_new_tokens=max_tokens,
+                        )
+                        for _ in range(num_return)
+                    ]
+                    io_output_list.append(outputs)
+                    self.call_counter += num_return
             elif self.api == "debug":
                 io_output_list = [
                     ["Debug: The answer is generated with debug mode, 233." for _ in range(num_return)]
