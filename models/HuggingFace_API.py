@@ -13,7 +13,7 @@ import numpy as np
 
 def load_HF_model(ckpt) -> tuple:
     tokenizer = AutoTokenizer.from_pretrained(ckpt)
-    tokenizer.pad_token = tokenizer.eos_token
+    # tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(
         ckpt,
         load_in_8bit=False,
@@ -29,7 +29,7 @@ def generate_with_HF_model(
 ):
     try:
         print(f"🧠 Generating: {input[:80]}...")
-        
+
         inputs = tokenizer(input, return_tensors="pt", padding=True, truncation=True)
         inputs = {k: v.to("cuda") for k, v in inputs.items()}
         generation_config = GenerationConfig(
