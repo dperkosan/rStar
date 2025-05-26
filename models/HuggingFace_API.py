@@ -27,8 +27,8 @@ def generate_with_HF_model(
     tokenizer, model, input=None, temperature=0.8, top_p=0.95, top_k=40, num_beams=1, max_new_tokens=128, **kwargs
 ):
     try:
-        inputs = tokenizer(input, return_tensors="pt")
-        input_ids = inputs["input_ids"].to("cuda")
+        inputs = tokenizer(input, return_tensors="pt", padding=True, truncation=True)
+        inputs = {k: v.to("cuda") for k, v in inputs.items()}
         generation_config = GenerationConfig(
             do_sample=True,
             temperature=temperature,
@@ -39,7 +39,7 @@ def generate_with_HF_model(
         )
         with torch.no_grad():
             generation_output = model.generate(
-                input_ids=input_ids,
+                **inputs,
                 generation_config=generation_config,
                 return_dict_in_generate=True,
                 output_scores=True,
